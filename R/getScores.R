@@ -1,3 +1,32 @@
+#' Title Get GPAs and GRE scores from a SOPHAS full application PDF
+#'
+#' @param pdfdir A full-specified path to a directory containing one or more
+#' SOPHAS application PDFs
+#'
+#' @return a data.frame with applicants in rows and data in columns
+#' @export
+#' @importFrom pdftools pdf_text
+#' 
+#' @examples
+getScores <- function(pdfdir){
+  files <- dir(pdfdir, pattern = "pdf$", full.names = TRUE)
+  pdftexts <- sapply(files, pdftools::pdf_text)
+  nms <- getNAME(pdfdir)
+  gpas <- lapply(pdftexts, function(x) getGPA(x))
+  gpas <- do.call(rbind, gpas)
+  gres <- lapply(pdftexts, function(x) getGRE(x))
+  gres <- do.call(rbind, gres)
+  res <- cbind(gpas, gres)
+  rownames(res) <- make.unique(getNAME(pdfdir))
+  for (i in grep("GRE Date", colnames(res), invert=TRUE)){
+    res[[i]] <- as.numeric(res[[i]])
+  }
+  gpa <- rowMeans(res[, (grep("Graduate", colnames(res))+1):grep("Overall", colnames(res))], na.rm = TRUE)
+  gres <- res$`Quantitative %` + res$`Analytical %` + rank(res$`Verbal %`)
+  res <- res[order(rank(gpa) + rank(gres, na.last=FALSE), decreasing = TRUE), ]
+  return(res)
+}
+
 .getGRE <- function(pdftext) {
     lines <- strsplit(pdftext, "\n")
     lines <- unlist(lines)
@@ -84,33 +113,4 @@
     nms <- sub("^[0-9]+ ", "", nms)
     nms <- sub(" - .+", "", nms)
     return(nms)
-}
-
-#' Title Get GPAs and GRE scores from a SOPHAS full application PDF
-#'
-#' @param pdfdir A full-specified path to a directory containing one or more
-#' SOPHAS application PDFs
-#'
-#' @return a data.frame with applicants in rows and data in columns
-#' @export
-#'
-#' @examples
-getScores <- function(pdfdir){
-    library(pdftools)
-    files <- dir(pdfdir, pattern = "pdf$", full.names = TRUE)
-    pdftexts <- sapply(files, pdf_text)
-    nms <- getNAME(pdfdir)
-    gpas <- lapply(pdftexts, function(x) getGPA(x))
-    gpas <- do.call(rbind, gpas)
-    gres <- lapply(pdftexts, function(x) getGRE(x))
-    gres <- do.call(rbind, gres)
-    res <- cbind(gpas, gres)
-    rownames(res) <- make.unique(getNAME(pdfdir))
-    for (i in grep("GRE Date", colnames(res), invert=TRUE)){
-        res[[i]] <- as.numeric(res[[i]])
-    }
-    gpa <- rowMeans(res[, (grep("Graduate", colnames(res))+1):grep("Overall", colnames(res))], na.rm = TRUE)
-    gres <- res$`Quantitative %` + res$`Analytical %` + rank(res$`Verbal %`)
-    res <- res[order(rank(gpa) + rank(gres, na.last=FALSE), decreasing = TRUE), ]
-    return(res)
 }
