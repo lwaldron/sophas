@@ -1,6 +1,6 @@
 Package: sophas
 Title: Parse SOPHAS Application PDFs to Extract GRE and GPA Information
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: person("Levi", "Waldron", email = "lwaldron.research@gmail.com", 
                   role=c("cre", "aut"))
 Description: Parse SOPHAS application PDFs to extract GRE and GPA information.

@@ -35,7 +35,7 @@ getScores <- function(pdfdir){
   res <- cbind(gpas, gres)
   rownames(res) <- make.unique(getNAME(pdfdir))
   for (i in grep("GRE Date", colnames(res), invert=TRUE)){
-    res[[i]] <- as.numeric(res[[i]])
+    suppressWarnings(res[[i]] <- as.numeric(res[[i]]))
   }
   gpa <- rowMeans(res[, (grep("Graduate", colnames(res))+1):grep("Overall", colnames(res))], na.rm = TRUE)
   gres <- res$`Quantitative %` + res$`Analytical %` + rank(res$`Verbal %`)
@@ -107,7 +107,7 @@ getGPA <- function(pdftext) {
         cug <- do.call(rbind, cug)
         cug[, 1] <- sub("\\s+", "", cug[, 1])
         cug <- cug[match(cnames, cug[, 1]),]
-        cug.gpa <- as.numeric(cug[, 2])
+        suppressWarnings(cug.gpa <- as.numeric(cug[, 2]))
     } else{
         cug <- grep(paste(cnames, collapse = "|"), cug, value = TRUE)
         cug <- strsplit(gsub("[ ]{5}\\s+", "z", cug), "z")
@@ -115,7 +115,7 @@ getGPA <- function(pdftext) {
         cug <- do.call(rbind, cug)
         cug[, 1] <- sub("\\s+", "", cug[, 1])
         cug <- cug[match(cnames, cug[, 1]), ]
-        cug.gpa <- as.numeric(cug[, 3])
+        suppressWarnings(cug.gpa <- as.numeric(cug[, 3]))
     }
     if(length(cug.gpa) == 0)
         cug.gpa <- rep(NA, length(cnames))
