@@ -21,6 +21,7 @@
 #' grecols <- match(c("Quantitative %", "Verbal %", "Analytical %"), colnames(x))
 #' final = cbind(rubric, x[, c(grecols, gpacols)])
 #' }
+#' @importFrom methods is
 getScores <- function(pdfdir){
   files <- dir(pdfdir, pattern = "pdf$", full.names = TRUE)
   pdftexts <- sapply(files, pdftools::pdf_text)
@@ -40,11 +41,11 @@ getScores <- function(pdfdir){
   return(res)
 }
 
-.getGRE <- function(pdftext) {
+getGRE <- function(pdftext) {
     lines <- strsplit(pdftext, "\n")
     lines <- unlist(lines)
     gregex <- "([0-9]{2}-[0-9]{2}-20[0-9]{2})\\s+[0-9]*\\s+([0-9]{3})\\s([0-9]{1,2})%\\s+([0-9]{2,3})\\s([0-9]{1,2})%"
-    grelines <- grep(gregex, lines, val = TRUE)
+    grelines <- grep(gregex, lines, value = TRUE)
     gre <- strsplit(gsub(" +", "z", grelines), "z")
     if(length(gre) == 0){
         gre <- list(rep("none", 8))
@@ -73,7 +74,7 @@ getScores <- function(pdfdir){
     return(gre)
 }
 
-.getGPA <- function(pdftext) {
+getGPA <- function(pdftext) {
     lines <- strsplit(pdftext, "\n")
     lines <- unlist(lines)
     cnames <-
@@ -95,18 +96,18 @@ getScores <- function(pdfdir){
             "Undergraduate",
             "Overall"
         )
-    cug <- grep("    Subject    |     Year     ", lines, val = TRUE)
+    cug <- grep("    Subject    |     Year     ", lines, value = TRUE)
     if (length(cug) == 0) {
         gparegex <- "[a-zA-Z]+\\s{15,}[23]\\.[0-9]{2}\\s{15,}[0-9]{2,}\\.[0-9]"
-        cug <- grep(gparegex, lines, val = TRUE)
-        cug <- grep(paste(cnames, collapse = "|"), cug, val = TRUE)
+        cug <- grep(gparegex, lines, value = TRUE)
+        cug <- grep(paste(cnames, collapse = "|"), cug, value = TRUE)
         cug <- strsplit(gsub("[ ]{5}\\s+", "z", cug), "z")
         cug <- do.call(rbind, cug)
         cug[, 1] <- sub("\\s+", "", cug[, 1])
         cug <- cug[match(cnames, cug[, 1]),]
         cug.gpa <- as.numeric(cug[, 2])
     } else{
-        cug <- grep(paste(cnames, collapse = "|"), cug, val = TRUE)
+        cug <- grep(paste(cnames, collapse = "|"), cug, value = TRUE)
         cug <- strsplit(gsub("[ ]{5}\\s+", "z", cug), "z")
         cug <- cug[sapply(cug, length) == 4]
         cug <- do.call(rbind, cug)
@@ -121,7 +122,7 @@ getScores <- function(pdfdir){
     return(cug.gpa)
 }
 
-.getNAME <- function(pdfdir){
+getNAME <- function(pdfdir){
     nms <- dir(pdfdir)
     nms <- sub("^[0-9]+ ", "", nms)
     nms <- sub(" - .+", "", nms)
