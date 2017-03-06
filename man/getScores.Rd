@@ -17,5 +17,19 @@ a data.frame with applicants in rows and data in columns
 Title Get GPAs and GRE scores from a SOPHAS full application PDF
 }
 \examples{
-  #getScores("~/applications")
+ 
+\dontrun{
+pdfdir <- "~/applications"
+x=getScores(pdfdir)
+rubric <- data.frame(
+  quantitative = as.integer(cut(x$`Quantitative`, c(0, 145, 148, 154, 1000), labels=1:4)),
+  verbal = as.integer(cut(x$Verbal, c(0, 155, 160, 163, 1000), labels=1:4)),
+  analytical = as.integer(cut(x$Analytical, c(0, 3.9, 4.4, 4.9, 10), labels=1:4)),
+  gpa = as.integer(cut(x$`Cumulative Undergraduate` , c(0, 3, 3.299, 3.599, 4.01), labels=1:4)))
+rownames(rubric) = rownames(x)
+gpacols <- c( (grep("Graduate", colnames(x))+1):grep("Overall", colnames(x)), 
+              grep("Cumulative", colnames(x)))
+grecols <- match(c("Quantitative \%", "Verbal \%", "Analytical \%"), colnames(x))
+final = cbind(rubric, x[, c(grecols, gpacols)])
+}
 }
