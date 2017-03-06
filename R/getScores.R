@@ -24,6 +24,8 @@
 #' @importFrom methods is
 getScores <- function(pdfdir){
   files <- dir(pdfdir, pattern = "pdf$", full.names = TRUE)
+  if(length(files) == 0)
+    stop(paste0("No PDF files found in ", pdfdir))
   pdftexts <- sapply(files, pdftools::pdf_text)
   nms <- getNAME(pdfdir)
   gpas <- lapply(pdftexts, function(x) getGPA(x))
@@ -123,7 +125,7 @@ getGPA <- function(pdftext) {
 }
 
 getNAME <- function(pdfdir){
-    nms <- dir(pdfdir)
+    nms <- dir(pdfdir, pattern = "pdf$")
     nms <- sub("^[0-9]+ ", "", nms)
     nms <- sub(" - .+", "", nms)
     return(nms)
