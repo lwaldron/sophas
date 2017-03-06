@@ -5,9 +5,8 @@
 #'
 #' @return a data.frame with applicants in rows and data in columns
 #' @export
-#' @importFrom pdftools pdf_text
 #' 
-#' @examples
+#' @examples   #getScores("~/applications")
 getScores <- function(pdfdir){
   files <- dir(pdfdir, pattern = "pdf$", full.names = TRUE)
   pdftexts <- sapply(files, pdftools::pdf_text)

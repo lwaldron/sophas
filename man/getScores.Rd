@@ -16,3 +16,6 @@ a data.frame with applicants in rows and data in columns
 \description{
 Title Get GPAs and GRE scores from a SOPHAS full application PDF
 }
+\examples{
+  #getScores("~/applications")
+}
